@@ -7,8 +7,10 @@ import { CookieService } from 'ngx-cookie-service';
   styleUrls: ['./report.component.scss']
 })
 export class ReportComponent implements OnInit {
-
+  cookie = '';
   constructor(private cookieService: CookieService) {
+    this.cookie = JSON.stringify(this.cookieService.getAll());
+
     let date = new Date(Date.now());
     date.setSeconds(date.getSeconds() - 1);
     // this.cookieService.set('Test2', 'Hello World', { sameSite: 'None', secure: true });
