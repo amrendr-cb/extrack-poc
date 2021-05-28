@@ -15,6 +15,11 @@ On `Mac` launch Terminal, type the following command, and press Return. As with 
 
 `$ sudo nano /private/etc/hosts`
 
-172.1.1.1 app1.test
+127.1.1.1 app1.test
 
-172.1.1.2 app2.test
+127.1.1.2 app2.test
+
+
+sudo ifconfig lo0 alias 127.1.1.1 netmask 0xFFFFFFFF
+
+sudo ifconfig lo0 alias 127.1.1.2 netmask 0xFFFFFFFF
