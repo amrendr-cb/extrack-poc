@@ -8,6 +8,7 @@ import { CookieService } from 'ngx-cookie-service';
 })
 export class ReportComponent implements OnInit {
   cookie = '';
+  local: string | null = '' ;
   constructor(private cookieService: CookieService) {
     this.cookie = JSON.stringify(this.cookieService.getAll());
 
@@ -16,6 +17,7 @@ export class ReportComponent implements OnInit {
     // this.cookieService.set('Test2', 'Hello World', { sameSite: 'None', secure: true });
     this.cookieService.set('Test', 'Hello World', { expires: date, sameSite: 'None', secure: true });
     // this.cookieService.set('Test', 'Hello World');
+    this.local = localStorage.getItem('Test');
   }
 
   ngOnInit(): void {

@@ -15,6 +15,7 @@ export class TrackComponent implements OnInit {
     this.cookieService.set('Test', 'Hello World', { sameSite: 'None', secure: true });
     // this.cookieService.set('Test', 'Hello World', { expires: date, sameSite: 'None', secure: true });
     // this.cookieService.set('Test', 'Hello World');
+    localStorage.setItem('Test', 'Hello World!');
   }
 
   ngOnInit(): void {
