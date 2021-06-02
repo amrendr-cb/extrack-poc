@@ -6,12 +6,14 @@ import { AppRoutingModule } from './app-routing.module'
 import { AppComponent } from './app.component';
 import { ReportComponent } from './report/report.component';
 import { TrackComponent } from './track/track.component';
+import { AjaxComponent } from './ajax/ajax.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     ReportComponent,
-    TrackComponent
+    TrackComponent,
+    AjaxComponent
   ],
   imports: [
     AppRoutingModule,

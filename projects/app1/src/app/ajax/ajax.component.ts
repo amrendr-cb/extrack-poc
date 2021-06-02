@@ -1,12 +1,14 @@
-import { Component } from '@angular/core';
+import { ThrowStmt } from '@angular/compiler';
+import { Component, OnInit } from '@angular/core';
 
 @Component({
-  selector: 'xtc2-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss']
+  selector: 'xtc1-ajax',
+  templateUrl: './ajax.component.html',
+  styleUrls: ['./ajax.component.scss']
 })
-export class AppComponent {
-  title = 'app2';
+export class AjaxComponent implements OnInit {
+
+  constructor() { }
 
   ngOnInit(): void {
     // var xhttp = new XMLHttpRequest();
@@ -14,7 +16,8 @@ export class AppComponent {
     //   if (this.readyState == 4 && this.status == 200) {
     //     console.log('Response\n', this.responseText);
     //     console.log('Headers\n', this.getAllResponseHeaders());
-    //     // console.log('Header Data\n', this.getResponseHeader('Set-cookie'));
+    //     console.log('Header Data\n', this.getResponseHeader('Set-Cookie'));
+    //     this.get
 
     //   }
     // };
