@@ -31,12 +31,13 @@ app.get('/track', function (req, res) {
   var tracking_etag = req.get('If-None-Match');
   if (tracking_etag) {
     const refererURL = new URL(req.get('Referer') ?? 'http://fake.url');
+    //console.log(refererURL);
     tracking_etag = tracking_etag.replace(/^W\/"/g, '').replace(/"/g, '');
     if (tracking_etag == simple_etag) {
       // already tracked.
       console.log('Tracking Tag: ', 'None');
       return res.status(304).send();
-    } else if (refererURL.host == host) {
+    } else if (!refererURL.search) {
       console.log('Tracking Tag: ', refererURL.host);
       // reloading cb_page that has setup the tracker pixel should not trigger reconcilation.
       return res.status(304).send();
@@ -66,8 +67,8 @@ var renderTrackingPixel = (res, etag) => {
 
   s.on('open', function () {
     res.set('Content-Type', 'image/png');
-    // res.set('Cache-Control', 'private, max-age=0, must-revalidate');
-    // res.set('Cache-Control', 'max-age=0, must-revalidate');
+    res.set('Cache-Control', 'private, must-revalidate, proxy-revalidate');
+    res.set('Access-Control-Allow-Origin', '*');
     res.set('ETag', 'W/"' + etag + '"');
     s.pipe(res);
   });
