@@ -17,57 +17,56 @@ app.get('/collect', function (req, res) {
   res.send();
 });
 
-app.get('/setup', function (req, res) {
+app.get('/init', function (req, res) {
+
   var tag = micro.now().toString(36);
+  // TODO - asynchronously store the tag with actual tracking data for reconcilation
+
+  //load image to initialize etag with tracking tag.
   res.cookie(cookie_tag, tag, { httpOnly: true, sameSite: 'lax' });
   res.set('Content-Type', 'text/html');
-  res.send('<iframe height="200" width="300" style="border:0;" src="http://localhost:3000/tracker.html"></iframe>');
+  res.send('<img src="track" crossorigin="anonymous">');
 });
 
 app.get('/track', function (req, res) {
 
-  var host = 'localhost:3000';
+  var init_host_path = '/init';
   const simple_etag = 'zXJtL/PG9CWr9mi2KoRu/Ka/1R0';
   const tracking_cookie_tag = req.cookies[cookie_tag];
+  const refererURL = new URL(req.get('Referer') ?? 'http://fake.url');
+  var tracking_etag = req.get('If-None-Match') ?? '';
+  tracking_etag = tracking_etag.replace(/^W\/"/g, '').replace(/"/g, '');
 
-  var tracking_etag = req.get('If-None-Match');
-
-  if (tracking_etag) {
-    const refererURL = new URL(req.get('Referer') ?? 'http://fake.url');
-    //console.log(refererURL);
-    tracking_etag = tracking_etag.replace(/^W\/"/g, '').replace(/"/g, '');
-    if (tracking_etag == simple_etag) {
-      // already tracked.
-      console.log('Tracking Tag: ', 'None');
-      return res.status(304).send();
-      // } else if (!refererURL.search) {
-      //   console.log('Tracking Tag: ', refererURL.host);
-      //   // reloading cb_page that has setup the tracker pixel should not trigger reconcilation.
-      //   return res.status(304).send();
-    } else {
-      if (tracking_cookie_tag) {
-        return res.status(304).send();
-      }
-      var tag = tracking_etag.replace(simple_etag + '-', '');
-      // Send for reconcilation
-      console.log('Tracking Tag: ', tag);
-      console.log('Reconcilation triggered for tagId: ', tag);
+  if (refererURL.pathname == init_host_path) {
+    if (tracking_cookie_tag) {
       res.clearCookie(cookie_tag);
+        return renderTrackingPixel(res, simple_etag + '-' + tracking_cookie_tag);
+    }
+    console.log('Tracking Tag: ', 'Reloading initialization');
+    return res.status(304).send();
+  } else {
+    var tracking_etag = req.get('If-None-Match');
+    if (tracking_etag) {
+      tracking_etag = tracking_etag.replace(/^W\/"/g, '').replace(/"/g, '');
+      if (tracking_etag == simple_etag) {
+        // already tracked.
+        console.log('Tracking Tag: ', 'Already Tracked');
+        return res.status(304).send();
+      } else {
+        var tag = tracking_etag.replace(simple_etag + '-', '');
+        // Send for reconcilation
+        console.log('Tracking Tag: ', tag);
+        console.log('Reconcilation triggered for tagId: ', tag);
+        return renderTrackingPixel(res, simple_etag);
+      }
+    } else {
+      if (req.get('Cache-Control') && req.get('Cache-Control').indexOf('no-cache') < 0) {
+        // user has disabled cache, we can't track using etag.
+        // TODO: What option do we have?
+        console.log('Tracking Tag: ', 'No-Cache');
+      }
       return renderTrackingPixel(res, simple_etag);
     }
-  } else {
-    var tag = '';
-    if (tracking_cookie_tag) {
-      // setup tracking pixel.
-      tag = '-' + tracking_cookie_tag;
-    } else if (req.get('Cache-Control') && req.get('Cache-Control').indexOf('no-cache') < 0) {
-      // user has disabled cache, we can't track using etag.
-      // TODO: What option do we have?
-      console.log('Tracking Tag: ', 'No-Cache');
-      tag = '-' + micro.now().toString(36);
-
-    }
-    return renderTrackingPixel(res, simple_etag + tag);
   }
 });
 
@@ -94,6 +93,13 @@ app.get('*', function (req, res) {
   res.status(404).send('Not found');
 });
 
+const host = 'pix.app1.test';
+
+app.listen(80, host, function () {
+  console.log('Listening on http://' + host);
+});
+
+
 app.listen(3000, function () {
-  console.log('Listening on http://localhost:3000/');
+  console.log('Listening on http://localhost:3000');
 });
