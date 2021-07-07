@@ -19,7 +19,11 @@ On `Mac` launch Terminal, type the following command, and press Return. As with 
 
 127.1.1.2 app2.test
 
+127.1.1.3 pix.app1.test
+
 
 sudo ifconfig lo0 alias 127.1.1.1 netmask 0xFFFFFFFF
 
 sudo ifconfig lo0 alias 127.1.1.2 netmask 0xFFFFFFFF
+
+sudo ifconfig lo0 alias 127.1.1.3 netmask 0xFFFFFFFF

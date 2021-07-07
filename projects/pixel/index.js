@@ -11,7 +11,7 @@ var dir = path.join(__dirname, 'public');
 app.use(express.static(dir));
 app.use(cookieParser());
 
-app.get('/collect', function (req, res) {
+app.get('/collect1', function (req, res) {
   var tag = micro.now().toString(36);
   res.cookie(cookie_tag, tag, { httpOnly: true, sameSite: 'lax' });
   res.send();
@@ -26,6 +26,13 @@ app.get('/init', function (req, res) {
   res.cookie(cookie_tag, tag, { httpOnly: true, sameSite: 'lax' });
   res.set('Content-Type', 'text/html');
   res.send('<img src="track" crossorigin="anonymous">');
+  // res.send('<html><head></head><body><iframe height="200" width="300" style="border:0;" src="/"></iframe></body></html>');
+});
+
+app.get('/collect', function (req, res) {
+  res.set('Content-Type', 'text/html');
+  res.send('<html><head></head><body><img src="track" crossorigin="anonymous"></body></html>');
+  // res.send('<html><head></head><body><iframe height="200" width="300" style="border:0;" src="tracker.html"></iframe></body></html>');
 });
 
 app.get('/track', function (req, res) {
@@ -37,10 +44,15 @@ app.get('/track', function (req, res) {
   var tracking_etag = req.get('If-None-Match') ?? '';
   tracking_etag = tracking_etag.replace(/^W\/"/g, '').replace(/"/g, '');
 
+  if (tracking_cookie_tag) {
+    // res.clearCookie(cookie_tag);
+    return renderTrackingPixel(res, simple_etag + '-' + tracking_cookie_tag);
+  }
+
   if (refererURL.pathname == init_host_path) {
     if (tracking_cookie_tag) {
-      res.clearCookie(cookie_tag);
-        return renderTrackingPixel(res, simple_etag + '-' + tracking_cookie_tag);
+      // res.clearCookie(cookie_tag);
+      return renderTrackingPixel(res, simple_etag + '-' + tracking_cookie_tag);
     }
     console.log('Tracking Tag: ', 'Reloading initialization');
     return res.status(304).send();
