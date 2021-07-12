@@ -27,3 +27,8 @@ sudo ifconfig lo0 alias 127.1.1.1 netmask 0xFFFFFFFF
 sudo ifconfig lo0 alias 127.1.1.2 netmask 0xFFFFFFFF
 
 sudo ifconfig lo0 alias 127.1.1.3 netmask 0xFFFFFFFF
+
+
+
+
+uglifyjs cb_apply.js -c --mangle-props -b --name-cache output.json -e  --output output.js

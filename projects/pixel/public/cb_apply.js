@@ -1,88 +1,96 @@
 class CB_Analytics {
-
   constructor() {
-    this.now = (new Date).getTime();
-    this.random = Math.random() * 99999999999;
-    this.cba_tracker_key = '___cba';
+    this._now = (new Date).getTime();
+    this._random = Math.random() * 99999999999;
+    this._cba_tracker_key = '___cba';
+    this._document = document;
+    this._body = this._document.body;
+    this._documentElement = this._document.documentElement;
+    this._window = window;
+    this._location = this._window.location;
+    this._screen = this._window.screen;
+    this._navigator = this._window.navigator;
+    this._sessionStorage = this._window.sessionStorage;
   };
 
-  collect = function () {
+  collectData = function () {
     try {
-      this.siteData = this.getData();
-
       // generate the url
-      var pix = document.createElement("img");
+      var pix = this._document.createElement("img");
       var url = this.baseurl;
-      url += "&tn=" + this.now + "&rn=" + this.random;
-      url += "&dl=" + encodeURIComponent(location.href);
-      url += "&dr=" + encodeURIComponent(document.referrer);
-      url += "&sr=" + window.screen.height + 'x' + window.screen.width + 'x' + window.screen.pixelDepth;
-      url += "&vr=" + document.documentElement.clientHeight + 'x' + document.documentElement.clientWidth;
-      url += "&dt=" + encodeURIComponent(document.title);
-      url += "&pf=" + encodeURIComponent(navigator.platform);
-      url += "&cba=" + encodeURIComponent(this.getCbaTracker());
+      url += "&tn=" + this._now + "&rn=" + this._random;
+      url += "&dl=" + this.encodeComponent(this._location.href);
+      url += "&dr=" + this.encodeComponent(this._document.referrer);
+      url += "&sr=" + this._screen.height + 'x' + this._screen.width + 'x' + this._screen.pixelDepth;
+      url += "&vr=" + this._documentElement.clientHeight + 'x' + this._documentElement.clientWidth;
+      url += "&dt=" + this.encodeComponent(this._document.title);
+      url += "&pf=" + this.encodeComponent(this._navigator.platform);
+      url += "&cba=" + this.encodeComponent(this.getCbaTracker());
+      url += "&dd=" + this.encodeComponent(this.getDataFromClient());
 
 
       pix.src = url;
       pix.style.display = "none";
-      document.body.appendChild(pix);
+      this._body.appendChild(pix);
 
       // any required cleanup
       this.cleanup();
     } catch (e) {
-      console.error(e);
+      // console.error(e);
     }
   };
-  getData = function () {
+  getDataFromClient = function () {
     return '';
   };
-  isCompleted = function () {
+  hasApplicationCompleted = function () {
     // Is application completed
     return false;
   }
   cleanup = function () {
-    if (this.isCompleted()) {
+    if (this.hasApplicationCompleted()) {
       // cleanup any cookie and storage
-      if (window.sessionStorage)
-        window.sessionStorage.removeItem(this.cba_tracker_key);
+      if (this._sessionStorage)
+        this._sessionStorage.removeItem(this._cba_tracker_key);
     }
   }
-  saveToSessionStorage = function (value) {
+  saveToSessionStorage = function (key, value) {
     try {
-      if (window.sessionStorage && value)
-        window.sessionStorage.setItem(this.cba_tracker_key, value);
+      if (this._sessionStorage && value)
+        this._sessionStorage.setItem(key, value);
     } catch (e) { }
   };
-
+  encodeComponent = function (value) {
+    return encodeURIComponent(value);
+  };
   getFromSessionStorage = function (key) {
-    if (window.sessionStorage)
-      return window.sessionStorage.getItem(this.cba_tracker_key) || '';
+    if (this._sessionStorage)
+      return this._sessionStorage.getItem(key) || '';
   };
 
   getCbaTracker = function () {
-    var cba_tracker = (new URLSearchParams(window.location.search)).get(this.cba_tracker_key);
+    var cba_tracker = (new URLSearchParams(this._location.search)).get(this._cba_tracker_key);
     if (cba_tracker) {
-      this.saveToSessionStorage(cba_tracker);
+      this.saveToSessionStorage(this._cba_tracker_key, cba_tracker);
     } else {
-      cba_tracker = this.getFromSessionStorage(this.cba_tracker_key);
+      cba_tracker = this.getFromSessionStorage(this._cba_tracker_key);
     }
-    console.error(cba_tracker);
+    // console.error(cba_tracker);
     return cba_tracker;
   };
 }
-var cba = new CB_Analytics();
+var __cba = new CB_Analytics();
 // timeout to ensure that custom code after this line is executed first.
-window.setTimeout(function () { cba.collect(); }, 0);
+window.setTimeout(function () { __cba.collectData(); }, 0);
 
 //prod or stage
-cba.baseurl = 'http://pix.app1.test/collect?_=';
+__cba.baseurl = 'http://pix.app1.test/collect?_=';
 
 // Custom code
-cba.getData = function () {
+__cba.getDataFromClient = function () {
   console.log('I am overridden');
   return "x";
 }
 
-cba.isCompleted = function () {
+__cba.ApplicationCompleted = function () {
   return true;
 }
